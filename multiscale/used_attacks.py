@@ -27,7 +27,7 @@ class regression_PGD:
         for _ in range(self.steps):
             adv_samples.requires_grad = True
             f = self.model.function(adv_samples)
-            cost = self.loss(f, torch.zeros(f.shape))
+            cost = self.loss(f, torch.zeros(f.shape).to(self.device))
 
             # Update adversarial images
             grad = torch.autograd.grad(cost, adv_samples,

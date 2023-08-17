@@ -6,7 +6,7 @@ import torch.optim as optim               # optimizers e.g. gradient descent, AD
 
 import numpy as np
 import time
-from pyDOE import lhs         #Latin Hypercube Sampling
+from scipy.stats import qmc
 import scipy.io
 
 def training_data_latin_hypercube(X, T, U_gt, N_boundary=100, N_inner=1e3):
@@ -33,7 +33,9 @@ def training_data_latin_hypercube(X, T, U_gt, N_boundary=100, N_inner=1e3):
     x_t_test = np.hstack((X.flatten()[:,None], T.flatten()[:,None]))
     lb = x_t_test[0,:]  # [-1. 0.]
     ub = x_t_test[-1,:] # [1.  0.99]
-    x_t_inner = lb + (ub-lb)*lhs(2, int(N_inner))
+    
+    sampler = qmc.LatinHypercube(d=2)
+    x_t_inner = lb + (ub-lb)*sampler.random(n=int(N_inner))
     # append training points to collocation points
     x_t_train = np.vstack((x_t_inner, x_t_boundary))
     return x_t_train, x_t_boundary, u_boundary
