@@ -9,36 +9,45 @@ import time
 from scipy.stats import qmc
 import scipy.io
 
-def training_data_latin_hypercube(X, T, U_gt, N_boundary=200, N_inner=1e3):
+def training_data_latin_hypercube(X, Y, U_gt, N_boundary=200, N_inner=1e3):
 
-    # boundary conditions
-    x_t_left = np.hstack((X[0,:][:,None], T[0,:][:,None]))
+    '''Boundary Conditions'''
+
+    #Initial Condition -1 =< x =<1 and t = 0
+    x_y_left = np.hstack((X[:,0][:,None], Y[:,0][:,None])) #L1
     u_left = U_gt[:,0][:,None]
 
-    x_t_bottom = np.hstack((X[:,0][:,None], T[:,0][:,None]))
+    x_y_right = np.hstack((X[:,-1][:,None], Y[:,-1][:,None])) #L1
+    u_right = U_gt[:,-1][:,None]
+
+    #Boundary Condition x = -1 and 0 =< t =<1
+    x_y_bottom = np.hstack((X[-1,:][:,None], Y[-1,:][:,None])) #L2
     u_bottom = U_gt[-1,:][:,None]
 
-    x_t_top = np.hstack((X[:,-1][:,None], T[:,0][:,None]))
+    #Boundary Condition x = 1 and 0 =< t =<1
+    x_y_top = np.hstack((X[0,:][:,None], Y[0,:][:,None])) #L3
     u_top = U_gt[0,:][:,None]
 
-    x_t_boundary = np.vstack([x_t_left, x_t_bottom, x_t_top])
-    u_boundary = np.vstack([u_left, u_bottom, u_top])
+    x_y_boundary = np.vstack([x_y_left, x_y_right, x_y_bottom, x_y_top]) # X_u_train [456,2] (456 = 256(L1)+100(L2)+100(L3))
+    u_boundary = np.vstack([u_left, u_right, u_bottom, u_top])         #corresponding u [456x1]
 
-    # choose random N_boundary points for training
-    idx = np.random.choice(x_t_boundary.shape[0], N_boundary, replace=False)
-    x_t_boundary = x_t_boundary[idx, :]
-    u_boundary = u_boundary[idx,:]
+    #choose random N_u points for training
+    idx = np.random.choice(x_y_boundary.shape[0], N_boundary, replace=False)
+    x_y_boundary = x_y_boundary[idx, :] #choose indices from  set 'idx' (x,t)
+    u_boundary = u_boundary[idx,:]      #choose corresponding u
+
+    '''Collocation Points'''
 
     # Latin Hypercube sampling for collocation points
-    x_t_test = np.hstack((X.flatten()[:,None], T.flatten()[:,None]))
-    lb = x_t_test[0,:]  # [-1. 0.]
-    ub = x_t_test[-1,:] # [1.  0.99]
-
+    x_y_test = np.hstack((X.flatten()[:,None], Y.flatten()[:,None]))
+    lb = x_y_test[0,:]  # [-1. 0.]
+    ub = x_y_test[-1,:] # [1.  0.99]
     sampler = qmc.LatinHypercube(d=2)
-    x_t_inner = lb + (ub-lb)*sampler.random(n=int(N_inner))
-    # append training points to collocation points
-    x_t_train = np.vstack((x_t_inner, x_t_boundary))
-    return x_t_train, x_t_boundary, u_boundary
+    x_y_inner = lb + (ub-lb)*sampler.random(n=int(N_inner))
+    #x_y_inner = lb + (ub-lb)*lhs(2, int(N_inner))
+    x_y_train = np.vstack((x_y_inner, x_y_boundary)) # append training points to collocation points
+
+    return x_y_train, x_y_boundary, u_boundary
 
 class sequential_model(nn.Module):
 

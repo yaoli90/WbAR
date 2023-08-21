@@ -14,21 +14,20 @@ def plot_u(u, x, t, log=False, title='$u(x;theta)$'):
     gs0.update(top=1-0.06, bottom=1-0.46, left=0.15, right=0.55, wspace=0)
     ax = plt.subplot(gs0[:, :])
     if not log:
-        h = ax.imshow(u, interpolation='nearest', cmap='rainbow',
+        h = ax.imshow(u.T, interpolation='nearest', cmap='rainbow',
                     extent=[t.min(), t.max(), x.min(), x.max()],
                     origin='lower', aspect='auto')
     else:
-        h = ax.imshow(u, interpolation='nearest', cmap='rainbow',
+        h = ax.imshow(u.T, interpolation='nearest', cmap='rainbow',
                     extent=[t.min(), t.max(), x.min(), x.max()],
-                    origin='lower', aspect='auto', norm=cls.LogNorm(vmin=1e-5,vmax=1))
+                    origin='lower', aspect='auto', norm=cls.LogNorm(vmin=1e-1))
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
     fig.colorbar(h, cax=cax)
     ax.set_aspect('equal')
-    ax.set_xlabel('$x$')
-    ax.set_ylabel('$y$')
+    ax.set_xlabel('$y$')
+    ax.set_ylabel('$x$')
     ax.set_title(title, fontsize = 10)
-    plt.show()
     return ax
 
 def plot_x(u, U_gt, x, pos):
@@ -50,7 +49,6 @@ def plot_x(u, U_gt, x, pos):
 def plot_u_x(u, U_gt, x, y, pos=192, title='$u(x;theta)$'):
     ax = plot_u(u, x, y, title=title)
     line = np.linspace(x.min(), x.max(), 2)[:,None]
-    line = np.linspace(x.min(), x.max(), 2)[:,None]
     ax.plot(y[pos]*np.ones((2,1)), line, 'w-', linewidth = 1)
     plot_x(u, U_gt, x, pos)
     plt.show()
@@ -66,14 +64,14 @@ def plot_samples(s, f):
     gs0 = gridspec.GridSpec(1, 2)
     gs0.update(top=1-0.06, bottom=1-0.46, left=0.15, right=0.55, wspace=0)
     ax = plt.subplot(gs0[:, :])
-    h = ax.scatter(s[:,1],s[:,0], c=f, cmap="rainbow", norm=cls.LogNorm(vmin=1e-5), s=15)
+    h = ax.scatter(s[:,1],s[:,0], c=f, cmap="rainbow", norm=cls.LogNorm(vmin=1e-1), s=15)
     ax.set_xlabel('adversarial samples, %.5f' % sample_mse)
     ax.set_xlim([-1,1])
     ax.set_ylim([-1,1])
     ax.axis('square')
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
-    ax.set_xlabel('$x$')
-    ax.set_ylabel('$y$')
+    ax.set_xlabel('$y$')
+    ax.set_ylabel('$x$')
     fig.colorbar(h, cax=cax)
     plt.show()
