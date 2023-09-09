@@ -9,7 +9,7 @@ import time
 from scipy.stats import qmc
 import scipy.io
 
-def training_data_latin_hypercube(X, T, U_gt, N_boundary=200, N_inner=1e3, lb=None, ub=None):
+def training_data_latin_hypercube(X, T, U_gt, N_boundary=400, N_inner=1e3, lb=None, ub=None):
 
     # boundary conditions
     x_t_left = np.hstack((X[0,:][:,None], T[0,:][:,None]))
@@ -79,7 +79,7 @@ class sequential_model(nn.Module):
         if torch.is_tensor(x) != True:
             x = torch.from_numpy(x).float().to(self.device)
 
-        D = 0.001
+        D = 0.0001
 
         g = x
         g.requires_grad = True

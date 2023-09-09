@@ -28,7 +28,6 @@ def plot_u(u, x, t, log=False, title='$u(x;theta)$'):
     ax.set_xlabel('$t$')
     ax.set_ylabel('$x$')
     ax.set_title(title, fontsize = 10)
-    plt.show()
     return ax
 
 def plot_x(u, U_gt, x, pos):
@@ -66,12 +65,12 @@ def plot_x(u, U_gt, x, pos):
     ax.set_ylim([-1.1,1.1])
     ax.set_title('$t = 0.75s$', fontsize = 10)
 
-def plot_u_x(u, U_gt, x, t, pos=[25,50,75], title='$u(x;theta)$'):
+def plot_u_x(u, U_gt, x, t, pos=[50,100,150], title='$u(x;theta)$'):
     ax = plot_u(u, x, t, title=title)
     line = np.linspace(x.min(), x.max(), 2)[:,None]
-    ax.plot(t[25]*np.ones((2,1)), line, 'w-', linewidth = 1)
-    ax.plot(t[50]*np.ones((2,1)), line, 'w-', linewidth = 1)
-    ax.plot(t[75]*np.ones((2,1)), line, 'w-', linewidth = 1)
+    ax.plot(t[pos[0]]*np.ones((2,1)), line, 'w-', linewidth = 1)
+    ax.plot(t[pos[1]]*np.ones((2,1)), line, 'w-', linewidth = 1)
+    ax.plot(t[pos[2]]*np.ones((2,1)), line, 'w-', linewidth = 1)
     plot_x(u, U_gt, x, pos)
     plt.show()
 
